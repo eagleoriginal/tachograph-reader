@@ -23,7 +23,9 @@ namespace DataFileReader
 			this.Length=length;
 		}
 
-		// method that will read string from file in specified encoding
+        public string Text => text;
+
+        // method that will read string from file in specified encoding
 		protected void ProcessInternal(CustomBinaryReader s, Encoding enc)
 		{
 			text=s.ReadString(Length, enc).Trim();
@@ -37,7 +39,7 @@ namespace DataFileReader
 
 		public override string ToString()
 		{
-			return text;
+			return Text;
 		}
 
 		protected override void InternalToXML(XmlWriter writer)

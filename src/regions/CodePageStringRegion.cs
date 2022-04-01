@@ -24,7 +24,8 @@ namespace DataFileReader
 			charsetMapping[0] = "ASCII";
 			charsetMapping[1] = "ISO-8859-1";
 			charsetMapping[2] = "ISO-8859-2";
-			charsetMapping[7] = "ISO-8859-7";
+            charsetMapping[5] = "ISO-8859-5";
+            charsetMapping[7] = "ISO-8859-7";
 
 			// CodePagesEncodingProvider (System.Text.Encoding.CodePages package) on .NET Core by default (GetEncodings() method) supports only few encodings
 			// https://msdn.microsoft.com/en-us/library/system.text.codepagesencodingprovider.aspx#Anchor_4

@@ -6,7 +6,9 @@ using DataFileReader;
 namespace DataFileReader
 {
 	public class ElementaryFileRegion : IdentifiedObjectRegion
-	{
+    {
+        public const byte GostSignature = 0x81;
+
 		[XmlAttribute]
 		public bool Unsigned = false;
 
@@ -15,9 +17,10 @@ namespace DataFileReader
 
 		public bool IsSignature(CustomBinaryReader reader)
 		{
-			int type = reader.PeekChar();
+			int type = reader.PeekByte();
 			WriteLine(LogLevel.DEBUG, "- type: {0}", type);
-			return type == 0x01;
+			
+            return type == 0x01 || type == GostSignature;
 		}
 
 		protected override bool SuppressElement(CustomBinaryReader reader)
@@ -48,8 +51,8 @@ namespace DataFileReader
 
 				long currentOffset = reader.BaseStream.Position;
 
-				reader.BaseStream.Position = SignatureRegion.signedDataOffsetBegin;
-				Validator.ValidateDelayedGen1(reader.ReadBytes(SignatureRegion.GetSignedDataLength()), this.signature, () => { return SignatureRegion.newestDateTime; });
+				reader.BaseStream.Position = SignatureRegion.signedDataOffsetBegin.Value;
+				Validator.ValidateDelayedGen1(reader.ReadBytes(SignatureRegion.GetSignedDataLength()), this.signature, () => { return SignatureRegion.newestDateTime.Value; });
 
 				reader.BaseStream.Position = currentOffset;
 			}
@@ -68,7 +71,12 @@ namespace DataFileReader
 				{
 					Validator.SetCACertificate(this);
 				};
-			}
+			} else if (type == GostSignature)
+            {
+				// this is just the Gost signature. Skip it
+				signature = reader.ReadBytes((int)fileLength);
+                fileLength = 0;
+            }
 			else
 			{
 				// this is some unknown section and should be skipped

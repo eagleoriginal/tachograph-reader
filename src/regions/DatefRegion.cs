@@ -7,7 +7,9 @@ namespace DataFileReader
 	// see page 56 (BCDString) and page 69 (Datef) - 2 byte encoded date in yyyy mm dd format
 	public class DatefRegion : Region
 	{
-		private DateTime dateTime;
+		private DateTime? dateTime;
+
+        public DateTime? Time => dateTime;
 
 		protected override void ProcessInternal(CustomBinaryReader reader)
 		{
@@ -20,7 +22,7 @@ namespace DataFileReader
 			{
 				try
 				{
-					dateTime = new DateTime((int)year, (int)month, (int)day);
+					dateTime = new DateTime((int)year, (int)month, (int)day, 0,  0, 0, DateTimeKind.Utc);
 				}
 				catch (Exception ex)
                 {
@@ -40,7 +42,7 @@ namespace DataFileReader
 			string dateTimeString = null;
 			if (this.dateTime != null)
 			{
-				dateTimeString = this.dateTime.ToString("u");
+				dateTimeString = dateTime.Value.ToString("u");
 			};
 			writer.WriteAttributeString("Datef", dateTimeString);
 		}

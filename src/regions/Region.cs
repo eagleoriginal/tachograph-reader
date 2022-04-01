@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.IO;
+using System.Threading;
 using System.Xml;
 using System.Xml.Serialization;
 using DataFileReader;
@@ -29,11 +30,11 @@ namespace DataFileReader
 		public bool GlobalValue;
 
 		[XmlAttribute]
-		public LogLevel LogLevel = LogLevel.INFO;
+		public LogLevel LogLevel = LogLevel.ERROR;
 
 		protected long byteOffset;
 		protected long regionLength = 0;
-		protected static Hashtable globalValues = new Hashtable();
+		protected static readonly AsyncLocal<Hashtable> globalValues = new ();
 		protected static readonly String[] countries = new string[] {"No information available",
 			"Austria","Albania","Andorra","Armenia","Azerbaijan","Belgium","Bulgaria","Bosnia and Herzegovina",
 			"Belarus","Switzerland","Cyprus","Czech Republic","Germany","Denmark","Spain","Estonia","France",
@@ -85,8 +86,9 @@ namespace DataFileReader
 				endPosition, endPosition - byteOffset, ToString());
 
 			if (GlobalValue)
-			{
-				globalValues[Name] = ToString();
+            {
+                globalValues.Value ??= new Hashtable();
+				globalValues.Value[Name] = ToString();
 			}
 		}
 

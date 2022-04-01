@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <RootNamespace>tachograph_reader_tests</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="M_20220218_1201__RUD00000933463.DDD" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="M_20220218_1201__RUD00000933463.DDD" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.1.0" />
+    <PackageReference Include="NUnit" Version="3.13.3" />
+    <PackageReference Include="Serilog.Extensions.Hosting" Version="4.2.0" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="4.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\tachograph-reader-lib.csproj" />
+  </ItemGroup>
+
+</Project>

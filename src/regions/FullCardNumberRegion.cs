@@ -29,7 +29,7 @@ namespace DataFileReader
 		public override string ToString()
 		{
 			return string.Format("type={0}, {1}, {2}, {3}, {4}",
-				type, issuingMemberState, driverIdentification, replacementIndex, renewalIndex);
+				type, issuingMemberState, DriverIdentification, ReplacementIndex, RenewalIndex);
 		}
 
 		protected override void InternalToXML(XmlWriter writer)

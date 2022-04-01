@@ -18,9 +18,9 @@ namespace DataFileReader
 			if ( Count == 0 && CountRef != null )
 			{
 				string refName=CountRef.Substring(1);
-				if (globalValues.Contains(refName))
+				if (globalValues.Value?.Contains(refName) ?? false)
 				{
-					Count=uint.Parse((string) globalValues[refName]);
+					Count=uint.Parse((string) globalValues.Value[refName] );
 				} else
 				{
 					WriteLine(LogLevel.WARN, "RepeatingRegion {0} doesn't contain ref {1}", Name, refName);

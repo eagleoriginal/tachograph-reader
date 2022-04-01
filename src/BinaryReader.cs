@@ -10,7 +10,8 @@ namespace DataFileReader
 	public class CustomBinaryReader : System.IO.BinaryReader
 	{
 		// get clock ticks since 1 January 1970
-		private static readonly long ticks1970 = new DateTime(1970, 1, 1, 0, 0, 0, 0).Ticks; 
+		public static readonly long Ticks1970 = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).Ticks;
+        public static readonly DateTime DateTime1970 = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
 		public CustomBinaryReader(Stream s) : base(s)
 		{
@@ -74,10 +75,10 @@ namespace DataFileReader
 			uint offset=ReadSInt32();
 
 			// Calculate the absolute number of ticks (100ths of nanoseconds since 0000)
-			long absTicks=ticks1970 + offset * 10000000L;
+			long absTicks=Ticks1970 + offset * 10000000L;
 
 			// and convert to actual date time class
-			return new DateTime(absTicks);
+			return new DateTime(absTicks, DateTimeKind.Utc);
 		}
 
 		public uint ReadBCDString(int lengthInBytes)
@@ -110,5 +111,20 @@ namespace DataFileReader
 
 			return result;
 		}
-	}
+
+
+        public virtual byte PeekByte()
+        {
+            if (!base.BaseStream.CanSeek)
+            {
+                return byte.MaxValue;
+            }
+
+            var origPos = base.BaseStream.Position;
+            var result = ReadByte();
+            base.BaseStream.Position = origPos;
+
+            return result;
+		}
+    }
 }

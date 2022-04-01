@@ -19,11 +19,11 @@ namespace DataFileReader
 
 		protected override void ProcessInternal(CustomBinaryReader reader)
 		{
-			SignatureRegion.signedDataOffsetBegin = reader.BaseStream.Position;
+			SignatureRegion.signedDataOffsetBegin.Value = reader.BaseStream.Position;
 
 			base.ProcessInternal(reader);
 
-			SignatureRegion.signedDataOffsetEnd = reader.BaseStream.Position;
+			SignatureRegion.signedDataOffsetEnd.Value = reader.BaseStream.Position;
 		}
 	}
 }

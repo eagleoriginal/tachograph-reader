@@ -9,6 +9,8 @@ namespace DataFileReader
 	{
 		private DateTime dateTime;
 
+        public DateTime DateTime => dateTime;
+
 		protected override void ProcessInternal(CustomBinaryReader reader)
 		{
 			dateTime=reader.ReadTimeReal();

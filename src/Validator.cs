@@ -6,25 +6,27 @@ using System.Numerics;
 using System.Reflection;
 using System.Linq;
 using System.Formats.Asn1;
+using System.Threading;
 
 namespace DataFileReader
 {
 	public class Validator
 	{
-		public static bool ValidateSignatures {get; set;} = false;
-		private static Dictionary<CertificationAuthorityReference, RSAPublicKey> gen1RSAPublicKeys = null;
+		public static readonly AsyncLocal<bool> ValidateSignatures = new AsyncLocal<bool>();
+		private static readonly AsyncLocal<Dictionary<CertificationAuthorityReference, RSAPublicKey>> gen1RSAPublicKeys = new ();
 
-		private static EncryptedCertificateGen1 CACertificate = null;
-		private static EncryptedCertificateGen1 Certificate = null;
+		private static readonly AsyncLocal<EncryptedCertificateGen1> CACertificate = new();
+		private static readonly AsyncLocal<EncryptedCertificateGen1> Certificate = new();
+        private static readonly AsyncLocal<List<DataSignature>> dataToValidate = new();
 
 		public static void SetCACertificate(Region certificateRegion)
 		{
-			Validator.CACertificate = new EncryptedCertificateGen1(certificateRegion);
+			Validator.CACertificate.Value = new EncryptedCertificateGen1(certificateRegion);
 		}
 
 		public static void SetCertificate(Region certificateRegion)
 		{
-			Validator.Certificate = new EncryptedCertificateGen1(certificateRegion);
+			Validator.Certificate.Value = new EncryptedCertificateGen1(certificateRegion);
 		}
 
 		public class RSAPublicKey
@@ -92,8 +94,7 @@ namespace DataFileReader
 			public override bool Equals(object other)
 			{
 				if (other is null) return false;
-				if (Object.ReferenceEquals(this, other)) return true;
-				if (this.GetType() != other.GetType()) return false;
+                if (this.GetType() != other.GetType()) return false;
 				return this.Equals((CertificationAuthorityReference)other);
 			}
 
@@ -364,10 +365,10 @@ namespace DataFileReader
 		{
 			if (Validator.gen1RSAPublicKeys == null)
 			{
-				Validator.gen1RSAPublicKeys = Validator.LoadGen1RSAPublicKeys();
+				Validator.gen1RSAPublicKeys.Value = Validator.LoadGen1RSAPublicKeys();
 			}
 
-			return Validator.gen1RSAPublicKeys;
+			return Validator.gen1RSAPublicKeys.Value;
 		}
 
 		private struct DataSignature
@@ -375,31 +376,29 @@ namespace DataFileReader
 			public byte[] data;
 			public byte[] signature;
 		}
-
-		private static List<DataSignature> dataToValidate = new List<DataSignature>();
-
+		
 		public static void Reset()
 		{
-			Validator.CACertificate = null;
-			Validator.Certificate = null;
-			Validator.dataToValidate = new List<DataSignature>();
+			Validator.CACertificate.Value = null;
+			Validator.Certificate.Value = null;
+			Validator.dataToValidate.Value = new List<DataSignature>();
 		}
 
 		public static void CheckIfValidated(DateTimeOffset? newestDateTime)
 		{
 			Validator.ValidateAllDelayedGen1(() => { return newestDateTime; });
-			if (Validator.dataToValidate.Count > 0)
+			if (Validator.dataToValidate.Value.Count > 0)
 			{
-				throw new InvalidSignatureException(string.Format("{0} signatures weren't validated!", Validator.dataToValidate.Count));
+				throw new InvalidSignatureException(string.Format("{0} signatures weren't validated!", Validator.dataToValidate.Value.Count));
 			}
 		}
 
 		public static void ValidateDelayedGen1(byte[] data, byte[] signature, Func<DateTimeOffset?> getNewestDateTime)
 		{
-			if (!Validator.ValidateSignatures)
+			if (!Validator.ValidateSignatures.Value)
 				return;
 
-			Validator.dataToValidate.Add(new DataSignature {data=data, signature=signature});
+			Validator.dataToValidate.Value.Add(new DataSignature {data=data, signature=signature});
 			Validator.ValidateAllDelayedGen1(getNewestDateTime);
 		}
 
@@ -407,17 +406,17 @@ namespace DataFileReader
 		{
 			if (Validator.CACertificate != null && Validator.Certificate != null)
 			{
-				foreach (var data_signature in Validator.dataToValidate)
+				foreach (var data_signature in Validator.dataToValidate.Value)
 				{
 					Validator.ValidateGen1(data_signature.data, data_signature.signature, getNewestDateTime());
 				}
-				Validator.dataToValidate.Clear();
+				Validator.dataToValidate.Value.Clear();
 			}
 		}
 
 		public static void ValidateGen1(byte[] data, byte[] signature, DateTimeOffset? newestDateTime)
 		{
-			if (!Validator.ValidateSignatures)
+			if (!Validator.ValidateSignatures.Value)
 				return;
 
 			if (Validator.CACertificate == null)
@@ -431,18 +430,18 @@ namespace DataFileReader
 			}
 
 			var gen1RSAPublicKeys = Validator.GetGen1RSAPublicKeys();
-			if (!gen1RSAPublicKeys.ContainsKey(Validator.CACertificate.certificationAuthorityReference))
+			if (!gen1RSAPublicKeys.ContainsKey(Validator.CACertificate.Value.certificationAuthorityReference))
 			{
 				throw new InvalidSignatureException("MemberStateCertificate is signed by unknown key!");
 			}
 
-			var certificate = Validator.CACertificate.GetCertificate(gen1RSAPublicKeys[Validator.CACertificate.certificationAuthorityReference]);
+			var certificate = Validator.CACertificate.Value.GetCertificate(gen1RSAPublicKeys[Validator.CACertificate.Value.certificationAuthorityReference]);
 			if (!certificate.IsValid(newestDateTime))
 			{
 				throw new InvalidSignatureException("Invalid MemberStateCertificate!");
 			}
 
-			certificate = Validator.Certificate.GetCertificate(certificate.publicKey);
+			certificate = Validator.Certificate.Value.GetCertificate(certificate.publicKey);
 
 			if (!certificate.VerifyData(data, Validator.ToBigInteger(signature), newestDateTime))
 			{

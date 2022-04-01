@@ -9,20 +9,25 @@ namespace DataFileReader
 		private string countryName;
 		private byte byteValue;
 
+        public static string ObtainCountryName(byte countryCode)
+        {
+            if (countryCode < countries.Length)
+                return countries[countryCode];
+            else if (countryCode == 0xFD)
+                return "European Community";
+            else if (countryCode == 0xFE)
+                return "Europe";
+            else if (countryCode == 0xFF)
+                return "World";
+            else
+                return "UNKNOWN";
+        }
+
 		protected override void ProcessInternal(CustomBinaryReader reader)
 		{
 			this.byteValue = reader.ReadByte();
-			if ( byteValue < countries.Length )
-				countryName=countries[byteValue];
-			else if (byteValue == 0xFD)
-				countryName="European Community";
-			else if (byteValue == 0xFE)
-				countryName="Europe";
-			else if (byteValue == 0xFF)
-				countryName="World";
-			else
-				countryName="UNKNOWN";
-		}
+			countryName = ObtainCountryName(byteValue);
+        }
 
 		public override string ToString()
 		{

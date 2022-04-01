@@ -22,6 +22,9 @@ namespace DataFileReader
 
 		[XmlIgnore]
 		public List<Region> ProcessedRegions { get; private set; } = new List<Region>();
+		
+        [XmlIgnore]
+        public HashSet<string> ProcessOnlySkipFiles;
 
 		/// <summary>
 		/// This method loads the XML config file into a new instance
@@ -61,7 +64,7 @@ namespace DataFileReader
 			this.Process(s);
 			this.ToXML(writer);
 		}
-
+        
 		/// This is the core method overridden by all subclasses of Region
 		// TODO: M: very inefficient if no matches found - will iterate over WORDs to end of file
 		protected override void ProcessInternal(CustomBinaryReader reader)
@@ -72,7 +75,38 @@ namespace DataFileReader
 
 			var unmatchedRegions = 0;
 			// in this case we read a magic and try to process it
-			while (true)
+            bool SkipEfFile(bool logging)
+            {
+                // get region type
+                byte[] regionType = new byte[1];
+                var bytesRead1 = reader.BaseStream.Read(regionType, 0, 1);
+                WriteLine(LogLevel.INFO, "- type: {0}", (int)regionType[0]);
+                if (bytesRead1 == 0) return false;
+
+                // get region length
+                byte[] regionLenBytes = new byte[2];
+                bytesRead1 = reader.BaseStream.Read(regionLenBytes, 0, 2);
+                if (bytesRead1 != 2) return false;
+                long regionLength = regionLenBytes[1] | regionLenBytes[0] << 8;
+                if (logging)
+                {
+                    WriteLine(LogLevel.INFO, "- location: {0:X4}-{1:X4}/{2:X4}", reader.BaseStream.Position,
+                        reader.BaseStream.Position + regionLength, regionLength);
+				}
+
+                // skip to the end
+                while (regionLength > int.MaxValue)
+                {
+                    reader.ReadBytes(int.MaxValue);
+                    regionLength -= int.MaxValue;
+                }
+
+                reader.ReadBytes((int)regionLength);
+
+                return true;
+            }
+
+            while (true)
 			{
 				byte[] magic = new byte[2];
 				int bytesRead = reader.BaseStream.Read(magic, 0, 2);
@@ -94,12 +128,23 @@ namespace DataFileReader
 
 				// test whether the magic matches one of our child objects
 				string magicString = string.Format("0x{0:X2}{1:X2}", magic[0], magic[1]);
-				bool matched = false;
-				foreach (IdentifiedObjectRegion r in regions)
+				
+                if (ProcessOnlySkipFiles != null && false == ProcessOnlySkipFiles.Contains(magicString))
+                {
+					if (false == SkipEfFile(false))
+                    {
+						break;
+                    }
+
+                    continue;
+                }
+
+                bool matched = false;
+                foreach (IdentifiedObjectRegion r in regions)
 				{
-					if (r.Matches(magicString))
+                    if (r.Matches(magicString))
 					{
-						WriteLine(LogLevel.DEBUG, "Identified region: {0} with magic {1} at 0x{2:X4}", r.Name, magicString, magicPos);
+                        WriteLine(LogLevel.DEBUG, "Identified region: {0} with magic {1} at 0x{2:X4}", r.Name, magicString, magicPos);
 						var newRegion = r.Copy();
 						newRegion.Process(reader);
 						this.ProcessedRegions.Add(newRegion);
@@ -115,27 +160,11 @@ namespace DataFileReader
 					WriteLine(LogLevel.WARN, "Unrecognized region with magic {0} at 0x{1:X4}", magicString, magicPos);
 					if (DataFile.StrictProcessing) throw new NotImplementedException("Unrecognized magic " + magicString);
 
-					// get region type
-					byte[] regionType = new byte[1];
-					bytesRead = reader.BaseStream.Read(regionType, 0, 1);
-					WriteLine(LogLevel.INFO, "- type: {0}", (int)regionType[0]);
-					if (bytesRead == 0) break;
-
-					// get region length
-					byte[] regionLenBytes = new byte[2];
-					bytesRead = reader.BaseStream.Read(regionLenBytes, 0, 2);
-					if (bytesRead != 2) break;
-					long regionLength = regionLenBytes[1] | regionLenBytes[0] << 8;
-					WriteLine(LogLevel.INFO, "- location: {0:X4}-{1:X4}/{2:X4}", reader.BaseStream.Position, reader.BaseStream.Position + regionLength, regionLength);
-
-					// skip to the end
-					while (regionLength > int.MaxValue)
-					{
-						reader.ReadBytes(int.MaxValue);
-						regionLength -= int.MaxValue;
-					}
-					reader.ReadBytes((int)regionLength);
-				}
+                    if (false == SkipEfFile(true))
+                    {
+                        break;
+                    }
+                }
 
 			}
 			if (unmatchedRegions > 0)
@@ -149,7 +178,7 @@ namespace DataFileReader
 				var region = this.ProcessedRegions[i];
 				if (region is ElementaryFileRegion)
 				{
-					if (((ElementaryFileRegion)region).Unsigned || !Validator.ValidateSignatures)
+					if (((ElementaryFileRegion)region).Unsigned || !Validator.ValidateSignatures.Value)
 						continue;
 
 					if (i + 1 < this.ProcessedRegions.Count)
@@ -166,7 +195,7 @@ namespace DataFileReader
 				}
 			}
 
-			Validator.CheckIfValidated(SignatureRegion.newestDateTime);
+			Validator.CheckIfValidated(SignatureRegion.newestDateTime.Value);
 			WriteLine(LogLevel.DEBUG, "Processing done.");
 		}
 

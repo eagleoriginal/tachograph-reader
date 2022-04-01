@@ -1,5 +1,6 @@
 using System;
 using System.Text;
+using System.Threading;
 using System.Xml;
 using System.Xml.Serialization;
 using DataFileReader;
@@ -8,15 +9,14 @@ namespace DataFileReader
 {
 	public class SignatureRegion : HexValueRegion
 	{
-		public static long signedDataOffsetBegin {get; set;} = 0;
-		public static long signedDataOffsetEnd {get; set;} = 0;
-		public static DateTimeOffset? newestDateTime {get; set;} = null;
+		public static readonly AsyncLocal<long> signedDataOffsetBegin = new AsyncLocal<long>();
+		public static readonly AsyncLocal<long> signedDataOffsetEnd  = new AsyncLocal<long>();
+		public static readonly AsyncLocal<DateTimeOffset?> newestDateTime = new AsyncLocal<DateTimeOffset?>();
 
 		public static void Reset()
 		{
-			SignatureRegion.signedDataOffsetBegin = 0;
-			SignatureRegion.signedDataOffsetEnd = 0;
-			SignatureRegion.newestDateTime = null;
+			SignatureRegion.signedDataOffsetBegin.Value = 0;
+			SignatureRegion.signedDataOffsetEnd.Value = 0;
 		}
 
 		public static void UpdateTime(DateTime dateTime)
@@ -32,25 +32,25 @@ namespace DataFileReader
 			     // need to compare to current time to filter out dateTime from future...
 			     dateTime < DateTimeOffset.Now))
 			{
-				SignatureRegion.newestDateTime = dateTime;
+				SignatureRegion.newestDateTime.Value = dateTime;
 			}
 		}
 
 		public static int GetSignedDataLength()
 		{
-			return (int)(SignatureRegion.signedDataOffsetEnd - SignatureRegion.signedDataOffsetBegin);
+			return (int)(SignatureRegion.signedDataOffsetEnd.Value - SignatureRegion.signedDataOffsetBegin.Value);
 		}
 
 		protected override void ProcessInternal(CustomBinaryReader reader)
 		{
-			SignatureRegion.signedDataOffsetEnd = reader.BaseStream.Position;
+			SignatureRegion.signedDataOffsetEnd.Value = reader.BaseStream.Position;
 
 			base.ProcessInternal(reader);
 
 			long currentOffset = reader.BaseStream.Position;
 
-			reader.BaseStream.Position = SignatureRegion.signedDataOffsetBegin;
-			Validator.ValidateGen1(reader.ReadBytes(SignatureRegion.GetSignedDataLength()), this.ToBytes(), SignatureRegion.newestDateTime);
+			reader.BaseStream.Position = SignatureRegion.signedDataOffsetBegin.Value;
+			Validator.ValidateGen1(reader.ReadBytes(SignatureRegion.GetSignedDataLength()), this.ToBytes(), SignatureRegion.newestDateTime.Value);
 
 			reader.BaseStream.Position = currentOffset;
 		}

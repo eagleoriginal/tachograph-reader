@@ -29,7 +29,7 @@ namespace DataFileReader
 
 			if (this.Name == "VuCertificate")
 			{
-				SignatureRegion.signedDataOffsetBegin = reader.BaseStream.Position;
+				SignatureRegion.signedDataOffsetBegin.Value = reader.BaseStream.Position;
 			}
 		}
 
