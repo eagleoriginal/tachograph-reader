@@ -84,7 +84,29 @@ namespace tachograph_reader_tests
                 var file = TachoDriverDddFile.BuildDriverFileForHeader(new MemoryStream(ddFile));
             });
             sw.Stop();
-            Console.WriteLine("V2Cached: " + sw.Elapsed);
+            Console.WriteLine("Parallel: " + sw.Elapsed);
+
+            sw = Stopwatch.StartNew();
+            Parallel.For(0, 10000, parallelOptions: new ParallelOptions
+            {
+                CancellationToken = default,
+                MaxDegreeOfParallelism = 4,
+                TaskScheduler = null
+            }, i =>
+            {
+                var file = TachoDriverDddFile.BuildDriverFileForHeader(new MemoryStream(ddFile));
+            });
+            sw.Stop();
+            Console.WriteLine("Parallel 2: " + sw.Elapsed);
+
+            sw = Stopwatch.StartNew();
+            
+            for(var i = 0; i < 10_000; i++)
+            {
+                var file = TachoDriverDddFile.BuildDriverFileForHeader(new MemoryStream(ddFile));
+            };
+            sw.Stop();
+            Console.WriteLine("One Thread: " + sw.Elapsed);
         }
     } 
 }

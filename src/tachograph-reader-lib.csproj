@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFrameworks>net5.0</TargetFrameworks>
@@ -7,6 +7,18 @@
     <StartupObject />
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <Version>1.0.0-alpha001</Version>
+    <PackageProjectUrl>https://github.com/eagleoriginal/tachograph-reader</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/eagleoriginal/tachograph-reader</RepositoryUrl>
+    <PackageTags>tachograph DDD UNECE</PackageTags>
+    <PackageReleaseNotes>Development Version</PackageReleaseNotes>
+    <Copyright>Copyright (C) 2014-2020 Alfie Kirkpatrick</Copyright>
+    <PackageId>tachograph-reader-private</PackageId>
+    <Authors>Alfie Kirkpatrick, davispuh Dāvis, rimutaka mx, diogocp Diogo Pereira, eagleoriginal</Authors>
+    <Product>Tachograph DDD File Reader-private</Product>
+    <PackageLicenseFile>License.txt</PackageLicenseFile>
+    <Company></Company>
+    <Description>Parser of DDD files according on UNECE ECE/TRANS/ SC.1/2006/2/Add.1 Annex 1B. Support reading Driver Cards and Vehicle Cards.</Description>
   </PropertyGroup>
 
   <ItemGroup>
@@ -22,5 +34,11 @@
   <ItemGroup>
     <PackageReference Include="System.Buffers" Version="4.5.1" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="6.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\License.txt">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 </Project>
