@@ -131,9 +131,9 @@ namespace DataFileReader
 				
                 if (ProcessOnlySkipFiles != null && false == ProcessOnlySkipFiles.Contains(magicString))
                 {
-					if (false == SkipEfFile(false))
+                    if (false == SkipEfFile(false))
                     {
-						break;
+                        break;
                     }
 
                     continue;

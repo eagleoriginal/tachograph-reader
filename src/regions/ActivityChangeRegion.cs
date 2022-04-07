@@ -22,6 +22,12 @@ namespace DataFileReader
 		Activity activity;
 		uint time;
 
+        public byte Slot => slot;
+        public byte Status => status;
+        public bool Inserted => inserted;
+        public Activity Activity => activity;
+        public DateTimeOffset Time => new (1900, 1, 1, (int)time / 60, (int)time % 60, 0, TimeSpan.Zero);
+
 		long position;
 
 		protected override void ProcessInternal(CustomBinaryReader reader)

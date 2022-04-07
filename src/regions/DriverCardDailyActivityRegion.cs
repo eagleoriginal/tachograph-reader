@@ -14,6 +14,15 @@ namespace DataFileReader
 		private uint dailyPresenceCounter;
 		private uint distance;
 
+        [XmlIgnore]
+		public DateTime RecordDate => recordDate;
+		
+        [XmlIgnore]
+        public uint DailyPresenceCounter => dailyPresenceCounter;
+        
+        [XmlIgnore]
+        public uint Distance => distance;
+
 		[XmlIgnore]
 		public List<ActivityChangeRegion> ProcessedRegions {get; private set;} = new List<ActivityChangeRegion>();
 

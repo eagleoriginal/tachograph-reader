@@ -1,5 +1,6 @@
 using System;
 using System.Xml;
+using System.Xml.Serialization;
 using DataFileReader;
 
 namespace DataFileReader
@@ -10,11 +11,14 @@ namespace DataFileReader
 		protected string replacementIndex;
 		protected string renewalIndex;
 
-        public string DriverIdentification => driverIdentification;
-
+        [XmlIgnore]
+		public string DriverIdentification => driverIdentification;
+		
+		[XmlIgnore]
         public string ReplacementIndex => replacementIndex;
 
-        public string RenewalIndex => renewalIndex;
+        [XmlIgnore]
+		public string RenewalIndex => renewalIndex;
 
         protected override void ProcessInternal(CustomBinaryReader reader)
 		{

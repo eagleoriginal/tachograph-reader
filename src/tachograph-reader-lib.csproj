@@ -21,6 +21,10 @@
     <Description>Parser of DDD files according on UNECE ECE/TRANS/ SC.1/2006/2/Add.1 Annex 1B. Support reading Driver Cards and Vehicle Cards.</Description>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net5.0|AnyCPU'">
+    <DocumentationFile>tachograph-reader-lib.xml</DocumentationFile>
+  </PropertyGroup>
+
   <ItemGroup>
     <Content Remove="DriverCardData.config" />
     <Content Remove="VehicleUnitData.config" />

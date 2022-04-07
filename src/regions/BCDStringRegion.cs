@@ -10,6 +10,9 @@ namespace DataFileReader
 		[XmlAttribute]
 		public int Size;
 		private uint value;
+		
+        [XmlIgnore]
+        public uint Value => value;
 
 		protected override void ProcessInternal(CustomBinaryReader reader)
 		{

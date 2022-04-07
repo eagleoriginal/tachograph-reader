@@ -23,7 +23,8 @@ namespace DataFileReader
 			this.Length=length;
 		}
 
-        public string Text => text;
+        [XmlIgnore]
+		public string Text => text;
 
         // method that will read string from file in specified encoding
 		protected void ProcessInternal(CustomBinaryReader s, Encoding enc)

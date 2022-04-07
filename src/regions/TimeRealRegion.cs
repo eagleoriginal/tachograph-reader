@@ -1,5 +1,6 @@
 using System;
 using System.Xml;
+using System.Xml.Serialization;
 using DataFileReader;
 
 namespace DataFileReader
@@ -9,7 +10,8 @@ namespace DataFileReader
 	{
 		private DateTime dateTime;
 
-        public DateTime DateTime => dateTime;
+        [XmlIgnore]
+		public DateTime DateTime => dateTime;
 
 		protected override void ProcessInternal(CustomBinaryReader reader)
 		{

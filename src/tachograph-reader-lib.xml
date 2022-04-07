@@ -1,0 +1,475 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>tachograph-reader-lib</name>
+    </assembly>
+    <members>
+        <member name="T:DataFileReader.CustomBinaryReader">
+            <summary>
+            Simple extension to BinaryReader with convenience methods for reading from tachograph file
+            </summary>
+        </member>
+        <member name="T:DataFileReader.CyclicStream">
+            <summary>
+            Implementation of a Stream that deals with the cyclic buffer in driver cards
+            </summary>
+        </member>
+        <member name="T:DataFileReader.DataFile">
+            <summary>
+            The core class that can read a configuration describing the tachograph data structure (one
+            for driver cards, one for vehicle cards), then read the file itself into memory, then finally
+            write the data as XML.
+            </summary>
+        </member>
+        <member name="M:DataFileReader.DataFile.Create(System.String)">
+            <summary>
+            This method loads the XML config file into a new instance
+            of VuDataFile, prior to processing.
+            </summary>
+            <param name="configFile">Config to load</param>
+            <returns>A new instance ready for processing</returns>
+        </member>
+        <member name="M:DataFileReader.DataFile.Process(System.String,System.Xml.XmlWriter)">
+            Convenience method to open a file and process it
+        </member>
+        <member name="M:DataFileReader.DataFile.ProcessInternal(DataFileReader.CustomBinaryReader)">
+            This is the core method overridden by all subclasses of Region
+        </member>
+        <member name="P:DataFileReader.DataFile.Regions">
+            This defines what children we can have from the XML config
+        </member>
+        <member name="T:DataFileReader.DriverCardDataFile">
+            <summary>
+            Wrapper for DataFile that initialises with driver card config
+            </summary>
+        </member>
+        <member name="T:DataFileReader.ContainerRegion">
+            Generic class for a region that contains other regions. Used as a simple wrapper
+            where this is indicated in the specification
+        </member>
+        <member name="T:DataFileReader.IdentifiedObjectRegion">
+            Simple subclass to hold the identified or 'magic' for the region (used by VuDataFile above)
+        </member>
+        <member name="T:DataFileReader.PaddingRegion">
+            Simple class to "eat" a specified number of bytes in the file
+        </member>
+        <member name="T:DataFileReader.LogLevel">
+            Simple logging - can be set on any region. Could be improved
+        </member>
+        <member name="T:DataFileReader.Region">
+            Abstract base class for all regions. Holds some convenience methods
+        </member>
+        <member name="T:DataFileReader.VehicleUnitDataFile">
+            <summary>
+            This is the main data file handler. It can contain any number of sub-regions that
+            are marked with a 'magic' number, as defined on page 160 of the specification.
+            </summary>
+        </member>
+        <member name="T:TachoDriverDddFile.CardNumber">
+             <summary>
+             2.21 CardNumber 
+             A card number as defined by definition (g).
+             CardNumber ::= CHOICE {
+             SEQUENCE {
+             driverIdentification IA5String(SIZE(14)),
+             cardReplacementIndex CardReplacementIndex,
+             cardRenewalIndex CardRenewalIndex
+             },
+              ECE/TRANS/SC.1/2006/2/Add.1 page 70  
+              SEQUENCE {
+              ownerIdentification IA5String(SIZE(13)),
+              cardConsecutiveIndex CardConsecutiveIndex,
+              cardReplacementIndex CardReplacementIndex,
+              cardRenewalIndex CardRenewalIndex
+              }
+             }
+             driverIdentification is the unique identification of a driver in a Contracting Party.
+             ownerIdentification is the unique identification of a company or a workshop or a control body within a Contracting Party. 
+             cardConsecutiveIndex is the card consecutive index.
+             cardReplacementIndex is the card replacement index.
+             cardRenewalIndex is the card renewal index.
+             The first sequence of the choice is suitable to code a driver card number, the second sequence
+             of the choice is suitable to code workshop, control, and company card numbers.
+            
+             All together it is 16 symbols string
+             </summary>
+        </member>
+        <member name="M:TachoDriverDddFile.CardNumber.#ctor(System.String,System.Char,System.Char)">
+             <summary>
+             2.21 CardNumber 
+             A card number as defined by definition (g).
+             CardNumber ::= CHOICE {
+             SEQUENCE {
+             driverIdentification IA5String(SIZE(14)),
+             cardReplacementIndex CardReplacementIndex,
+             cardRenewalIndex CardRenewalIndex
+             },
+              ECE/TRANS/SC.1/2006/2/Add.1 page 70  
+              SEQUENCE {
+              ownerIdentification IA5String(SIZE(13)),
+              cardConsecutiveIndex CardConsecutiveIndex,
+              cardReplacementIndex CardReplacementIndex,
+              cardRenewalIndex CardRenewalIndex
+              }
+             }
+             driverIdentification is the unique identification of a driver in a Contracting Party.
+             ownerIdentification is the unique identification of a company or a workshop or a control body within a Contracting Party. 
+             cardConsecutiveIndex is the card consecutive index.
+             cardReplacementIndex is the card replacement index.
+             cardRenewalIndex is the card renewal index.
+             The first sequence of the choice is suitable to code a driver card number, the second sequence
+             of the choice is suitable to code workshop, control, and company card numbers.
+            
+             All together it is 16 symbols string
+             </summary>
+        </member>
+        <member name="T:TachoDriverDddFile.DriverCardHolderIdentification">
+            <summary>
+            2.50 DriverCardHolderIdentification
+            Information, stored in a driver card, related to the identification of the cardholder
+            (requirement 195).
+            DriverCardHolderIdentification
+            Information, stored in a driver card, related to the identification of the cardholder
+            (requirement 195).
+            DriverCardHolderIdentification ::= SEQUENCE {
+            cardHolderName HolderName,
+            cardHolderBirthDate Datef,
+            cardHolderPreferredLanguage Language
+            }
+            cardHolderName is the name and first name(s) of the holder of the Driver Card.
+            cardHolderBirthDate is the date of birth of the holder of the Driver Card.
+            cardHolderPreferredLanguage is the preferred language of the card holder.
+            </summary>
+        </member>
+        <member name="M:TachoDriverDddFile.DriverCardHolderIdentification.#ctor(System.String,System.String,System.DateTime,System.String)">
+            <summary>
+            2.50 DriverCardHolderIdentification
+            Information, stored in a driver card, related to the identification of the cardholder
+            (requirement 195).
+            DriverCardHolderIdentification
+            Information, stored in a driver card, related to the identification of the cardholder
+            (requirement 195).
+            DriverCardHolderIdentification ::= SEQUENCE {
+            cardHolderName HolderName,
+            cardHolderBirthDate Datef,
+            cardHolderPreferredLanguage Language
+            }
+            cardHolderName is the name and first name(s) of the holder of the Driver Card.
+            cardHolderBirthDate is the date of birth of the holder of the Driver Card.
+            cardHolderPreferredLanguage is the preferred language of the card holder.
+            </summary>
+        </member>
+        <member name="T:TachoDriverDddFile.DriverCardIdentification">
+             <summary>
+             2.20 CardIdentification
+             Information, stored in a card, related to the identification of the card (requirements 194, 215,
+             231, 235).
+             CardIdentification ::= SEQUENCE {
+             CardIssuingMemberState NationNumeric,
+             cardNumber CardNumber,
+             cardIssuingAuthorityName Name,
+             cardIssueDate Time Real,
+             cardValidityBegin Time Real,
+             cardExpiryDate Time Real
+             }
+            
+             cardIssuingMemberState is the code of the Contracting Party issuing the card.
+             cardNumber is the card number of the card.
+             cardIssuingAuthorityName is the name of the authority having issued the Card.
+             cardIssueDate is the issue date of the Card to the current holder.
+             cardValidityBegin is the first date of validity of the card.
+             cardExpiryDate is the date when the validity of the card ends.
+             </summary>
+        </member>
+        <member name="M:TachoDriverDddFile.DriverCardIdentification.#ctor(System.Byte,TachoDriverDddFile.CardNumber,System.String,System.DateTime,System.DateTime,System.DateTime,TachoDriverDddFile.DriverCardHolderIdentification)">
+             <summary>
+             2.20 CardIdentification
+             Information, stored in a card, related to the identification of the card (requirements 194, 215,
+             231, 235).
+             CardIdentification ::= SEQUENCE {
+             CardIssuingMemberState NationNumeric,
+             cardNumber CardNumber,
+             cardIssuingAuthorityName Name,
+             cardIssueDate Time Real,
+             cardValidityBegin Time Real,
+             cardExpiryDate Time Real
+             }
+            
+             cardIssuingMemberState is the code of the Contracting Party issuing the card.
+             cardNumber is the card number of the card.
+             cardIssuingAuthorityName is the name of the authority having issued the Card.
+             cardIssueDate is the issue date of the Card to the current holder.
+             cardValidityBegin is the first date of validity of the card.
+             cardExpiryDate is the date when the validity of the card ends.
+             </summary>
+        </member>
+        <member name="T:TachoDriverDddFile.DriverCardLicenseInfo">
+            <summary>
+            2.14 CardDrivingLicenceInformation
+            Information, stored in a driver card, related to the card holder driver licence data (requirement
+            196).
+            CardDrivingLicenceInformation ::= SEQUENCE {
+            drivingLicenceIssuingAuthority Name,
+            drivingLicenceIssuingNation NationNumeric,
+            drivingLicenceNumber IA5String(SIZE(16))
+            }
+            drivingLicenceIssuingAuthority is the authority responsible for issuing the driving licence.
+            drivingLicenceIssuingNation is the nationality of the authority that issued the driving licence.
+            drivingLicenceNumber is the number of the driving licence.
+            </summary>
+        </member>
+        <member name="M:TachoDriverDddFile.DriverCardLicenseInfo.#ctor(System.String,System.Byte,System.String)">
+            <summary>
+            2.14 CardDrivingLicenceInformation
+            Information, stored in a driver card, related to the card holder driver licence data (requirement
+            196).
+            CardDrivingLicenceInformation ::= SEQUENCE {
+            drivingLicenceIssuingAuthority Name,
+            drivingLicenceIssuingNation NationNumeric,
+            drivingLicenceNumber IA5String(SIZE(16))
+            }
+            drivingLicenceIssuingAuthority is the authority responsible for issuing the driving licence.
+            drivingLicenceIssuingNation is the nationality of the authority that issued the driving licence.
+            drivingLicenceNumber is the number of the driving licence.
+            </summary>
+        </member>
+        <member name="T:TachoDriverDddFile.DriverCardCurrentUse">
+            <summary>
+            2.12 CardCurrentUse
+            Information about the actual usage of the card (requirement 212).
+            CardCurrentUse ::= SEQUENCE {
+            sessionOpenTime TimeReal,
+            sessionOpenVehicle VehicleRegistrationIdentification
+            }
+            sessionOpenTime is the time when the card is inserted for the current usage. This element is
+            set to zero at card removal.
+            sessionOpenVehicle is the identification of the currently used vehicle, set at card insertion.
+            This element is set to zero at card removal.
+            </summary>
+        </member>
+        <member name="M:TachoDriverDddFile.DriverCardCurrentUse.#ctor(System.DateTime,TachoDriverDddFile.VehicleRegistrationInfo)">
+            <summary>
+            2.12 CardCurrentUse
+            Information about the actual usage of the card (requirement 212).
+            CardCurrentUse ::= SEQUENCE {
+            sessionOpenTime TimeReal,
+            sessionOpenVehicle VehicleRegistrationIdentification
+            }
+            sessionOpenTime is the time when the card is inserted for the current usage. This element is
+            set to zero at card removal.
+            sessionOpenVehicle is the identification of the currently used vehicle, set at card insertion.
+            This element is set to zero at card removal.
+            </summary>
+        </member>
+        <member name="T:TachoDriverDddFile.VehicleRegistrationInfo">
+            <summary>
+            2.113 VehicleRegistrationIdentification
+            Identification of a vehicle, unique for Europe (VRN and Contracting Party)
+            VehicleRegistrationIdentification ::= SEQUENCE {
+            vehicleRegistrationNation NationNumeric,
+            vehicleRegistrationNumber VehicleRegistrationNumber
+            }
+            vehicleRegistrationNation is the nation where the vehicle is registered.
+            vehicleRegistrationNumber is the registration number of the vehicle (VRN).
+            </summary>
+        </member>
+        <member name="M:TachoDriverDddFile.VehicleRegistrationInfo.#ctor(System.Byte,System.String)">
+            <summary>
+            2.113 VehicleRegistrationIdentification
+            Identification of a vehicle, unique for Europe (VRN and Contracting Party)
+            VehicleRegistrationIdentification ::= SEQUENCE {
+            vehicleRegistrationNation NationNumeric,
+            vehicleRegistrationNumber VehicleRegistrationNumber
+            }
+            vehicleRegistrationNation is the nation where the vehicle is registered.
+            vehicleRegistrationNumber is the registration number of the vehicle (VRN).
+            </summary>
+        </member>
+        <member name="T:TachoDriverDddFile.CardEventRecord">
+            <summary>
+            2.16 CardEventRecord
+            Information, stored in a driver or a workshop card, related to an event associated to the card
+            holder (requirements 205 and 223).
+            CardEventRecord ::= SEQUENCE {
+            eventType EventFaultType,
+            eventBeginTime TimeReal,
+            eventEndTime TimeReal,
+            eventVehicleRegistration Vehicle RegistrationI dentification
+            }
+            eventType is the type of the event.
+            eventBeginTime is the date and time of beginning of event.
+            eventEndTime is the date and time of end of event.
+            eventVehicleRegistration is the VRN and registering Contracting Party of vehicle in which
+            the event happened.
+            </summary>
+        </member>
+        <member name="M:TachoDriverDddFile.CardEventRecord.#ctor(TachoDriverDddFile.CardEventType,System.DateTimeOffset,System.DateTimeOffset,TachoDriverDddFile.VehicleRegistrationInfo)">
+            <summary>
+            2.16 CardEventRecord
+            Information, stored in a driver or a workshop card, related to an event associated to the card
+            holder (requirements 205 and 223).
+            CardEventRecord ::= SEQUENCE {
+            eventType EventFaultType,
+            eventBeginTime TimeReal,
+            eventEndTime TimeReal,
+            eventVehicleRegistration Vehicle RegistrationI dentification
+            }
+            eventType is the type of the event.
+            eventBeginTime is the date and time of beginning of event.
+            eventEndTime is the date and time of end of event.
+            eventVehicleRegistration is the VRN and registering Contracting Party of vehicle in which
+            the event happened.
+            </summary>
+        </member>
+        <member name="T:TachoDriverDddFile.ActivityChangeInfo">
+            <summary>
+            2.1 ActivityChangeInfo
+            This data type enables to code, within a two bytes word, a slot status at 00:00 and/or a driver
+            status at 00:00 and/or changes of activity and/or changes of driving status and/or changes of
+            card status for a driver or a co-driver. This data type is related to requirements 084, 109a, 199
+            and 219.
+            ActivityChangeInfo ::= OCTET STRING (SIZE(2))
+            </summary>
+        </member>
+        <member name="M:TachoDriverDddFile.ActivityChangeInfo.#ctor(TachoDriverDddFile.CardSlotType,TachoDriverDddFile.CardDrivingStatus,System.Boolean,DataFileReader.Activity,System.DateTimeOffset)">
+            <summary>
+            2.1 ActivityChangeInfo
+            This data type enables to code, within a two bytes word, a slot status at 00:00 and/or a driver
+            status at 00:00 and/or changes of activity and/or changes of driving status and/or changes of
+            card status for a driver or a co-driver. This data type is related to requirements 084, 109a, 199
+            and 219.
+            ActivityChangeInfo ::= OCTET STRING (SIZE(2))
+            </summary>
+        </member>
+        <member name="T:TachoDriverDddFile.CardActivityDailyRecord">
+            <summary>
+            2.5 CardActivityDailyRecord
+            Information, stored in a card, related to the driver activities for a particular calendar day. This
+            data type is related to requirements 199 and 219.
+            CardActivityDailyRecord ::= SEQUENCE {
+            activityPreviousRecordLength INTEGER(0..CardActivityLengthRange),
+            activityRecordLength INTEGER(0..CardActivityLengthRange),
+            activityRecordDate TimeReal,
+            activityDailyPresenceCounter DailyPresenceCounter,
+            activityDayDistance Distance,
+            activityChangeInfo SET SIZE(1..1440) OF ActivityChangeInfo
+            }
+            activityPreviousRecordLength is the total length in bytes of the previous daily record. The
+            maximum value is given by the length of the OCTET STRING containing these records (see
+            CardActivityLengthRange paragraph 3). When this record is the oldest daily record, the value
+            of activityPreviousRecordLength must be set to 0.
+            activityRecordLength is the total length in bytes of this record. The maximum value is given
+            by the length of the OCTET STRING containing these records.
+            activityRecordDate is the date of the record.
+            activityDailyPresenceCounter is the daily presence counter for the card this day.
+            activityDayDistance is the total distance travelled this day.
+            activityChangeInfo is the set of ActivityChangeInfo data for the driver this day. It may
+            contain at maximum 1440 values (one activity change per minute). This set always includes
+            the activityChangeInfo coding the driver status at 00:00.
+            </summary>
+        </member>
+        <member name="M:TachoDriverDddFile.CardActivityDailyRecord.#ctor(System.DateTimeOffset,System.UInt32,System.UInt32,System.Collections.Generic.List{TachoDriverDddFile.ActivityChangeInfo})">
+            <summary>
+            2.5 CardActivityDailyRecord
+            Information, stored in a card, related to the driver activities for a particular calendar day. This
+            data type is related to requirements 199 and 219.
+            CardActivityDailyRecord ::= SEQUENCE {
+            activityPreviousRecordLength INTEGER(0..CardActivityLengthRange),
+            activityRecordLength INTEGER(0..CardActivityLengthRange),
+            activityRecordDate TimeReal,
+            activityDailyPresenceCounter DailyPresenceCounter,
+            activityDayDistance Distance,
+            activityChangeInfo SET SIZE(1..1440) OF ActivityChangeInfo
+            }
+            activityPreviousRecordLength is the total length in bytes of the previous daily record. The
+            maximum value is given by the length of the OCTET STRING containing these records (see
+            CardActivityLengthRange paragraph 3). When this record is the oldest daily record, the value
+            of activityPreviousRecordLength must be set to 0.
+            activityRecordLength is the total length in bytes of this record. The maximum value is given
+            by the length of the OCTET STRING containing these records.
+            activityRecordDate is the date of the record.
+            activityDailyPresenceCounter is the daily presence counter for the card this day.
+            activityDayDistance is the total distance travelled this day.
+            activityChangeInfo is the set of ActivityChangeInfo data for the driver this day. It may
+            contain at maximum 1440 values (one activity change per minute). This set always includes
+            the activityChangeInfo coding the driver status at 00:00.
+            </summary>
+        </member>
+        <member name="T:TachoDriverDddFile.CardVehicleRecord">
+            <summary>
+            2.30 CardVehicleRecord
+            Information, stored in a driver or workshop card, related to a period of use of a vehicle during
+            a calendar day (requirements 197 and 217).
+            CardVehicleRecord ::= SEQUENCE {
+            vehicleOdometerBegin OdometerShort,
+            vehicleOdometerEnd OdometerShort,
+            vehicleFirstUse TimeReal,
+            vehicleLastUse TimeReal,
+            vehicleRegistration VehicleRegistrationIdentification,
+            vuDataBlockCounter VuDataBlockCounter
+            }
+            vehicleOdometerBegin is the vehicle odometer value at the beginning of the period of use of
+            the vehicle.
+            vehicleOdometerEnd is the vehicle odometer value at the end of the period of use of the
+            vehicle.
+            vehicleFirstUse is the date and time of the beginning of the period of use of the vehicle.
+            vehicleLastUse is the date and time of the end of the period of use of the vehicle.
+            vehicleRegistration is the VRN and the registering Contracting Party of the vehicle.
+            vuDataBlockCounter is the value of the VuDataBlockCounter at last extraction of the period
+            of use of the vehicle.
+            </summary>
+        </member>
+        <member name="M:TachoDriverDddFile.CardVehicleRecord.#ctor(System.UInt32,System.UInt32,System.DateTimeOffset,System.DateTimeOffset,TachoDriverDddFile.VehicleRegistrationInfo,System.UInt32)">
+            <summary>
+            2.30 CardVehicleRecord
+            Information, stored in a driver or workshop card, related to a period of use of a vehicle during
+            a calendar day (requirements 197 and 217).
+            CardVehicleRecord ::= SEQUENCE {
+            vehicleOdometerBegin OdometerShort,
+            vehicleOdometerEnd OdometerShort,
+            vehicleFirstUse TimeReal,
+            vehicleLastUse TimeReal,
+            vehicleRegistration VehicleRegistrationIdentification,
+            vuDataBlockCounter VuDataBlockCounter
+            }
+            vehicleOdometerBegin is the vehicle odometer value at the beginning of the period of use of
+            the vehicle.
+            vehicleOdometerEnd is the vehicle odometer value at the end of the period of use of the
+            vehicle.
+            vehicleFirstUse is the date and time of the beginning of the period of use of the vehicle.
+            vehicleLastUse is the date and time of the end of the period of use of the vehicle.
+            vehicleRegistration is the VRN and the registering Contracting Party of the vehicle.
+            vuDataBlockCounter is the value of the VuDataBlockCounter at last extraction of the period
+            of use of the vehicle.
+            </summary>
+        </member>
+        <member name="P:TachoDriverDddFile.ActualCardFaultRecords">
+            <summary>
+            Information, stored in a driver or a workshop card, related to a fault associated to the card holder (requirement 208 and 223).
+            !!! Only with actual EventBeginTime 
+            Flat Collection of Fault Events from File: EF Faults_Data 0503
+            </summary>
+        </member>
+        <member name="P:TachoDriverDddFile.ActualCardEventRecords">
+            <summary>
+            Information, stored in a driver or a workshop card, related to an event associated to the card.
+            !!! Only with actual EventBeginTime 
+            Flat Collection of Events from File: EF Events_Data. File Id: 0502
+            </summary>
+        </member>
+        <member name="P:TachoDriverDddFile.ActualCardActivityDailyRecords">
+            <summary>
+            2.13 CardDriverActivityInformation, stored in a driver or a workshop card, related to the activities of the driver
+            File: EF Driver_Activity_Data. File Id: 0504
+            </summary>
+        </member>
+        <member name="P:TachoDriverDddFile.ActualVehicleUsedRecords">
+            <summary>
+            2.31 CardVehiclesUsed
+            Information, stored in a driver or workshop card, related to the vehicles used by the card
+            holder (requirements 197 and 217).
+            File: EF Driver_Activity_Data. File Id: 0505
+            </summary>
+        </member>
+    </members>
+</doc>
