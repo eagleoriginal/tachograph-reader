@@ -40,7 +40,16 @@ public class TachoDriverDddFile
     ///
     /// All together it is 16 symbols string
     /// </summary>
-    public record CardNumber(string DriverIdentification, char ReplacementIndex, char RenewalIndex);
+    public record CardNumber(string DriverIdentification, char ReplacementIndex, char RenewalIndex)
+    {
+        public CardNumberV2 ToCardNumberV2()
+        {
+            return new CardNumberV2(DriverIdentification.Substring(0, DriverIdentification.Length - 1),
+                DriverIdentification[DriverIdentification.Length - 1], ReplacementIndex, RenewalIndex);
+        }
+    };
+
+    public record CardNumberV2(string OwnerIdentification, char CardConsecutiveIndex, char ReplacementIndex, char RenewalIndex);
 
 
     /// <summary>

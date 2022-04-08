@@ -117,6 +117,7 @@ namespace tachograph_reader_tests
             {
                 Console.WriteLine("------------------- " + dddFile.CardIdentification.GetType());
                 Console.WriteLine(dddFile.CardIdentification);
+                Console.WriteLine(dddFile.CardIdentification.CardNumber.ToCardNumberV2());
                 Console.WriteLine("-------------------");
             }
 
@@ -167,8 +168,7 @@ namespace tachograph_reader_tests
 
             var _ = DriverCardDataFile.CreateOptimized();
             var __ = DriverCardDataFile.Create();
-
-
+            
             var sw = Stopwatch.StartNew();
             Parallel.For(0, 1000, parallelOptions: new ParallelOptions
             {

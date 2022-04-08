@@ -7,7 +7,7 @@
     <StartupObject />
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <Version>1.0.0-alpha001</Version>
+    <Version>1.0.0-alpha003</Version>
     <PackageProjectUrl>https://github.com/eagleoriginal/tachograph-reader</PackageProjectUrl>
     <RepositoryUrl>https://github.com/eagleoriginal/tachograph-reader</RepositoryUrl>
     <PackageTags>tachograph DDD UNECE</PackageTags>
@@ -19,6 +19,8 @@
     <PackageLicenseFile>License.txt</PackageLicenseFile>
     <Company></Company>
     <Description>Parser of DDD files according on UNECE ECE/TRANS/ SC.1/2006/2/Add.1 Annex 1B. Support reading Driver Cards and Vehicle Cards.</Description>
+    <AssemblyVersion>1.0.0.1</AssemblyVersion>
+    <FileVersion>1.0.0.1</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net5.0|AnyCPU'">

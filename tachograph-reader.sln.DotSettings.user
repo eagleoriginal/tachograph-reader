@@ -2,6 +2,7 @@
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=4510d979_002Defcd_002D4dbf_002Da5e2_002D11caede161f1/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="Test_ReadFile" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;TestAncestor&gt;&#xD;
     &lt;TestId&gt;NUnit3x::4FC21C60-5E00-4968-BF74-2EACE80EF171::net5.0::tachograph_reader_tests.TestsReadDddFiles.Test_ParallelRead&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::4FC21C60-5E00-4968-BF74-2EACE80EF171::net5.0::tachograph_reader_tests.TestsReadDddFiles.Test_ReadFile_OnlyHeader&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
 	
